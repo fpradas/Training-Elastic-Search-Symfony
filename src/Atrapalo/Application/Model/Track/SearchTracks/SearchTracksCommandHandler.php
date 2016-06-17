@@ -7,6 +7,7 @@ use Atrapalo\Application\Model\Command\CommandHandler;
 use Atrapalo\Application\Model\Track\Exception\TrackNotFoundException;
 use Atrapalo\Application\Model\Track\SearchTracks\DataTransformer\SearchTracksCommandResultDataTransformer;
 use Atrapalo\Domain\Model\Track\Repository\TrackRepository;
+use Atrapalo\Domain\Model\Track\Repository\TrackRepositoryCriteria;
 
 /**
  * Class SearchTracksCommandHandler
@@ -39,12 +40,19 @@ class SearchTracksCommandHandler implements CommandHandler
      */
     public function handle(Command $command)
     {
-        $offset = ($command->page() - 1) * TrackRepository::LIMIT;
-        $tracks = $this->trackRepository->findBy(
-            [],
-            ['id' => 'asc'],
-            TrackRepository::LIMIT,
-            $offset
+        $from = ($command->page() - 1) * TrackRepository::SIZE;
+
+        $tracks = $this->trackRepository->findByCriteria(
+            TrackRepositoryCriteria::instance(
+                $command->albumId(),
+                $command->albumTitle(),
+                $command->trackName(),
+                $command->composer(),
+                $command->page(),
+                ['id' => 'asc'],
+                TrackRepository::SIZE,
+                $from
+            )
         );
 
         return $this->searchTracksCommandResultDataTransformer->transform(

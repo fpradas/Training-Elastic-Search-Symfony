@@ -7,7 +7,9 @@ use Atrapalo\Domain\Model\Album\Entity\Album;
 use Atrapalo\Domain\Model\Genre\Entity\Genre;
 use Atrapalo\Domain\Model\InvoiceLine\Entity\InvoiceLine;
 use Atrapalo\Domain\Model\MediaType\Entity\MediaType;
+use Atrapalo\Domain\Model\PlayList\Entity\PlayList;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * Class Track
@@ -44,6 +46,8 @@ class Track implements Entity
     /** @var ArrayCollection */
     private $invoiceLines;
 
+    /** @var ArrayCollection */
+    private $playLists;
     /**
      * @param string $name
      * @param Album  $album
@@ -51,6 +55,7 @@ class Track implements Entity
     private function __construct(string $name, Album $album)
     {
         $this->invoiceLines = new ArrayCollection();
+        $this->playLists = new ArrayCollection();
         $this->id = null;
         $this->name = $name;
         $this->album = $album;
@@ -67,6 +72,18 @@ class Track implements Entity
     public function id()
     {
         return $this->id;
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Track
+     */
+    public function setId(int $id): Track
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     /**
@@ -170,9 +187,9 @@ class Track implements Entity
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function milliseconds(): int
+    public function milliseconds()
     {
         return $this->milliseconds;
     }
@@ -190,9 +207,9 @@ class Track implements Entity
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function bytes(): int
+    public function bytes()
     {
         return $this->bytes;
     }
@@ -210,9 +227,9 @@ class Track implements Entity
     }
 
     /**
-     * @return float
+     * @return float|null
      */
-    public function unitPrice(): float
+    public function unitPrice()
     {
         return $this->unitPrice;
     }
@@ -257,5 +274,33 @@ class Track implements Entity
     public function removeInvoiceLine(InvoiceLine $invoiceLine)
     {
         $this->invoiceLines->removeElement($invoiceLine);
+    }
+
+    /**
+     * @return Collection
+     */
+    public function playLists(): Collection
+    {
+        return $this->playLists;
+    }
+
+    /**
+     * @param PlayList $playList
+     *
+     * @return Track
+     */
+    public function addPlayList(PlayList $playList): Track
+    {
+        $this->playLists->add($playList);
+
+        return $this;
+    }
+
+    /**
+     * @param PlayList $playList
+     */
+    public function removePlayList(PlayList $playList)
+    {
+        $this->playLists->removeElement($playList);
     }
 }

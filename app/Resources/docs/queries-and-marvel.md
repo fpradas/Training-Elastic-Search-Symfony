@@ -11,9 +11,14 @@ Install marvel by command line:
 To access by url:
 http://localhost:9200/_plugin/marvel/sense/index.html
 
-###Other options:
+###Elasticsearch Queries:
 
 Sense (Beta) is a plugin for Google Chrome [chrome web store](https://chrome.google.com/webstore/detail/sense-beta/lhjgkmllcaadmopgmanpapmpjgmfcfig)
+
+List all indexes
+<pre>
+GET _cat/indices?v
+</pre>
 
 Get mapping from an index (playlist example)
 <pre>
@@ -87,7 +92,7 @@ GET playlist/_search
 
 ##Filter
 
-id = 5 ([Term](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html))
+Exact word, id = 5 ([Term](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html))
 
 <pre>
 GET playlist/_search
@@ -101,7 +106,7 @@ GET playlist/_search
 
 </pre>
 
-Mysql "in" 
+Mysql id "in" 
 
 <pre>
 GET playlist/_search
@@ -112,7 +117,7 @@ GET playlist/_search
 }
 </pre>
 
-Range ([Ranges](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html))
+Ranges ([Range](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html))
 
 <pre>
 GET playlist/_search
@@ -132,7 +137,7 @@ GET playlist/_search
 }
 </pre>
 
-Order ([sorting]())
+Order ([sorting](https://www.elastic.co/guide/en/elasticsearch/guide/current/_sorting.html))
 
 <pre>
 GET playlist/_search?from=0&size=20
@@ -146,3 +151,52 @@ GET playlist/_search?from=0&size=20
 </pre>
 
 
+Suggestion ([fuzzy](https://www.elastic.co/blog/found-fuzzy-search))
+
+The fuzzy query generates all possible matching terms that are within the maximum edit distance specified 
+in fuzziness and then checks the term dictionary to find out which of those generated terms actually exist 
+in the index.
+
+<pre>
+GET /playlist/_search
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "Madana",
+        "fuzziness": 2
+      }
+    }
+  }
+}
+</pre>
+
+
+<pre>
+POST track_index/_search
+{
+   "query": {
+      "bool": {
+         "must": [
+            {
+               "match": {
+                  "composer": {
+                     "query": "Alanis Morisette",
+                     "fuzziness": 2
+                  }
+               }
+            }
+         ]
+      }
+   },
+   "size": 20,
+   "from": 0,
+   "sort": [
+      {
+         "name": {
+            "order": "asc"
+         }
+      }
+   ]
+}
+</pre>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bundle\PlayWithElasticSearchBundle\Command\PlayList;
+namespace Bundle\PlayWithElasticSearchBundle\Command\Track;
 
 use Elastica\Client;
 use Elastica\Index;
@@ -9,25 +9,25 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class CreateElasticSearchPlayListIndexCommand
+ * Class CreateElasticSearchTrackIndexCommand
  */
-class CreateElasticSearchPlayListIndexCommand extends ContainerAwareCommand
+class CreateElasticSearchTrackIndexCommand extends ContainerAwareCommand
 {
     /** @var  Index */
-    private $playListIndex;
+    private $trackIndex;
 
     protected function configure()
     {
         $this
-            ->setName('bundle:play_with_elasticsearch:create_elasticsearch_playlist_index')
+            ->setName('bundle:play_with_elasticsearch:create_track_index')
             ->setDescription(
-                'Create playlist index command'
+                'Create track index command'
             );
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
-        $this->playListIndex = $this->getContainer()->get('ruflin.elastica.client')->getIndex('playlist');
+        $this->trackIndex = $this->getContainer()->get('ruflin.elastica.client')->getIndex('track_index');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -39,7 +39,7 @@ class CreateElasticSearchPlayListIndexCommand extends ContainerAwareCommand
     private function createPlaylistIndex()
     {
         // Create the index new
-        $this->playListIndex->create(
+        $this->trackIndex->create(
             [
                 'number_of_shards' => 4,
                 'number_of_replicas' => 1,
@@ -49,8 +49,8 @@ class CreateElasticSearchPlayListIndexCommand extends ContainerAwareCommand
                             'type' => 'snowball',
                             'tokenizer' => 'standard',
                             'filter' => ['lowercase', 'mySnowball'],
-                            'language' => 'Spanish',
-                            'stopwords' => 'de, en, el, a'
+                            'language' => 'English',
+                            'stopwords' => 'a, the, in'
                         ],
                         'searchAnalyzer' => [
                             'type' => 'custom',
@@ -74,7 +74,7 @@ class CreateElasticSearchPlayListIndexCommand extends ContainerAwareCommand
     {
         // Define mapping
         $mapping = new \Elastica\Type\Mapping();
-        $mapping->setType($this->playListIndex->getType('track'));
+        $mapping->setType($this->trackIndex->getType('track'));
 
         // Set mapping
         $mapping->setProperties(
@@ -101,7 +101,7 @@ class CreateElasticSearchPlayListIndexCommand extends ContainerAwareCommand
                     'include_in_all' => true
                 ],
                 'playList' => [
-                    'type' => 'object',
+                    'type' => 'nested',
                     'properties' => [
                         'id' => [
                             'type' => 'integer',

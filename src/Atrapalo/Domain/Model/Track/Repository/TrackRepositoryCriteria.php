@@ -1,14 +1,15 @@
 <?php
 
-namespace Atrapalo\Application\Model\Track\SearchTracks;
-
-use Atrapalo\Application\Model\Command\Command;
+namespace Atrapalo\Domain\Model\Track\Repository;
 
 /**
- * Class SearchTracksCommand
+ * Class TrackRepositoryCriteria
  */
-class SearchTracksCommand implements Command
+class TrackRepositoryCriteria
 {
+    /** @var int */
+    private $page;
+
     /** @var string */
     private $albumTitle;
 
@@ -18,34 +19,49 @@ class SearchTracksCommand implements Command
     /** @var string */
     private $composer;
 
+    /** @var array */
+    private $order;
+
+    /** @var int */
+    private $size;
+
+    /** @var int */
+    private $from;
+
     /** @var int */
     private $albumId;
 
-    /** @var int */
-    private $page;
-
     private function __construct(
+        int $albumId = null,
         string $albumTitle = null,
         string $trackName = null,
         string $composer = null,
         int $page = 1,
-        int $albumId = null
+        array $order = ['id' => 'asc'],
+        int $size = TrackRepository::SIZE,
+        int $from = 1
     ) {
+        $this->albumId = $albumId;
         $this->albumTitle = $albumTitle;
         $this->trackName = $trackName;
         $this->composer = $composer;
         $this->page = $page;
-        $this->albumId = $albumId;
+        $this->order = $order;
+        $this->size = $size;
+        $this->from = $from;
     }
 
     public static function instance(
+        int $albumId = null,
         string $albumTitle = null,
         string $trackName = null,
         string $composer = null,
         int $page = 1,
-        int $albumId = null
-    ): SearchTracksCommand {
-        return new static($albumTitle, $trackName, $composer, $page, $albumId);
+        array $order = ['name' => 'asc'],
+        int $size = TrackRepository::SIZE,
+        int $from = 1
+    ): TrackRepositoryCriteria {
+        return new static($albumId, $albumTitle, $trackName, $composer, $page, $order, $size, $from);
     }
 
     /**
@@ -80,8 +96,35 @@ class SearchTracksCommand implements Command
         return $this->composer;
     }
 
+    /**
+     * @return int|null
+     */
     public function page(): int
     {
         return $this->page;
+    }
+
+    /**
+     * @return array
+     */
+    public function order(): array
+    {
+        return $this->order;
+    }
+
+    /**
+     * @return int
+     */
+    public function size(): int
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return int
+     */
+    public function from(): int
+    {
+        return $this->from;
     }
 }
